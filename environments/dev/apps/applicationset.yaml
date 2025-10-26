@@ -1,0 +1,33 @@
+ apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tradingbot-applications
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: trading-bot-frontend
+            path: charts/trading-frontend
+          - name: trading-bot-backend
+            path: charts/trading-bot
+          - name: postgresql
+            path: charts/postgress/postgresql
+  template:
+    metadata:
+      name: '{{name}}'
+    spec:
+      project: default
+      source:
+        repoURL: git@github.com:jenyaTopol/git-ops-for-TB.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: dev
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
